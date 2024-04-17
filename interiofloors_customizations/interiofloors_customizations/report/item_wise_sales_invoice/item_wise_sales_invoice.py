@@ -66,6 +66,8 @@ def get_conditions(filters, doctype):
         conditions.append(f"`{doctype}`.posting_date >= %(from_date)s")
     if filters.get("to_date"):
         conditions.append(f"`{doctype}`.posting_date <= %(to_date)s")
+    if filters.get("customer"):
+        conditions.append(f"`{doctype}`.customer = %(customer)s")
 
     return " AND ".join(conditions)
 
@@ -87,7 +89,7 @@ def get_data(filters):
     INNER JOIN
         `tabSales Invoice Item` sii ON si.name = sii.parent
     WHERE
-        {conditions} 
+        {conditions} AND 
         si.docstatus = 1  
     """.format(conditions=get_conditions(filters, "si"))
 
