@@ -87,7 +87,7 @@ def get_data(filters):
     INNER JOIN
         `tabSales Invoice Item` sii ON si.name = sii.parent
     WHERE
-        {conditions} AND
+        {conditions} 
         si.docstatus = 1  
     """.format(conditions=get_conditions(filters, "si"))
 
