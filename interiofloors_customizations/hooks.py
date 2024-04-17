@@ -215,3 +215,5 @@ app_license = "MIT"
 # auth_hooks = [
 #	"interiofloors_customizations.auth.validate"
 # ]
+
+required_apps = ["erpnext"]
