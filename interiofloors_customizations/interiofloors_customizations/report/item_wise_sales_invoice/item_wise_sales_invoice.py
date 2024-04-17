@@ -87,8 +87,8 @@ def get_data(filters):
     INNER JOIN
         `tabSales Invoice Item` sii ON si.name = sii.parent
     WHERE
-        si.docstatus = 1 AND 
-        {conditions}
+        {conditions} AND
+        si.docstatus = 1  
     """.format(conditions=get_conditions(filters, "si"))
 
     sales_result = frappe.db.sql(sales, filters, as_dict=1)
