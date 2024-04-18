@@ -97,7 +97,7 @@ def get_data(filters):
         sii.rate,
         sii.amount, 
         si.total_taxes_and_charges AS tax,
-        sii.amount + si.total_taxes_and_charges AS grand_total
+        '' AS grand_total
         
     FROM
         `tabSales Invoice` si
@@ -109,6 +109,24 @@ def get_data(filters):
     """.format(conditions=get_conditions(filters, "si"))
 
     sales_result = frappe.db.sql(sales, filters, as_dict=1)
+
+    # TO REMOVE DUPLICATES
+    keys_to_check = ['inv_no', 'posting_date', 'tax']
+    seen_values = []
+
+    for entry in sales_result:
+        key_values = tuple(entry[key] for key in keys_to_check)
+
+        if key_values in seen_values:
+            for key in keys_to_check:
+                entry[key] = None
+        else:
+            seen_values.append(key_values)
+
+    # END
+    for item in sales_result:
+        item.grand_total = item.amount + item.tax
+        
     data.extend(sales_result)
 
     return data
