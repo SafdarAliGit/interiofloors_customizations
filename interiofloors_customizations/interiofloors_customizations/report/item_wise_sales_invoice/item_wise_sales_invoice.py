@@ -125,8 +125,8 @@ def get_data(filters):
 
     # END
     for item in sales_result:
-        item.grand_total = item.amount + item.tax
-        
+        item.grand_total = (item.amount if item.amount else 0) + (item.tax if item.tax else 0)
+
     data.extend(sales_result)
 
     return data
