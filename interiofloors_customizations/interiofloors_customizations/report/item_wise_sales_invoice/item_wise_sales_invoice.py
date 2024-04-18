@@ -54,6 +54,18 @@ def get_columns():
             "fieldname": "amount",
             "fieldtype": "Currency",
             "width": 120
+        },
+        {
+            "label": _("Other Charges"),
+            "fieldname": "tax",
+            "fieldtype": "Currency",
+            "width": 120
+        },
+        {
+            "label": _("Grand Total"),
+            "fieldname": "grand_total",
+            "fieldtype": "Currency",
+            "width": 120
         }
     ]
     return columns
@@ -83,7 +95,10 @@ def get_data(filters):
         sii.item_code,
         sii.qty,
         sii.rate,
-        sii.amount
+        sii.amount, 
+        si.total_taxes_and_charges AS tax,
+        sii.amount + si.total_taxes_and_charges AS grand_total
+        
     FROM
         `tabSales Invoice` si
     INNER JOIN
