@@ -116,7 +116,7 @@ def get_data(filters):
     #
     # for entry in sales_result:
     #     key_values = tuple(entry[key] for key in keys_to_check)
-    # 
+    #
     #     if key_values in seen_values:
     #         for key in keys_to_check:
     #             entry[key] = None
