@@ -3,6 +3,7 @@ import frappe
 from frappe import _
 from decimal import Decimal
 
+
 def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
@@ -11,13 +12,7 @@ def execute(filters=None):
 
 def get_columns():
     columns = [
-        {
-            "label": _("Invoice Number"),
-            "fieldname": "inv_no",
-            "fieldtype": "Link",
-            "options": "Sales Invoice",
-            "width": 120
-        },
+
         {
             "label": _("Date"),
             "fieldname": "posting_date",
@@ -25,13 +20,20 @@ def get_columns():
             "width": 120
         },
         {
-            "label": _("Reference Number"),
+            "label": _("Invoice #"),
+            "fieldname": "inv_no",
+            "fieldtype": "Link",
+            "options": "Sales Invoice",
+            "width": 120
+        },
+        {
+            "label": _("Reference #"),
             "fieldname": "ref_no",
             "fieldtype": "Data",
             "width": 120
         },
         {
-            "label": _("Sales Invoice Item"),
+            "label": _("Items"),
             "fieldname": "item_code",
             "fieldtype": "Link",
             "options": "Item",
@@ -48,16 +50,17 @@ def get_columns():
             "fieldname": "rate",
             "fieldtype": "Currency",
             "width": 120
-        },
+        }
+        ,
         {
-            "label": _("Amount"),
-            "fieldname": "amount",
+            "label": _("Other Charges"),
+            "fieldname": "tax",
             "fieldtype": "Currency",
             "width": 120
         },
         {
-            "label": _("Other Charges"),
-            "fieldname": "tax",
+            "label": _("Amount"),
+            "fieldname": "amount",
             "fieldtype": "Currency",
             "width": 120
         }
@@ -105,8 +108,8 @@ def get_data(filters):
 
     current_brand = None
     brand_data = []  # Collects data for each brand
-    brand_sum = {"qty": 0,"rate": '', "amount": 0, "tax": 0}  # Track sums for each brand
-    total_sum = {"qty": 0,"rate": '', "amount": 0, "tax": 0}  # Track total sums
+    brand_sum = {"qty": 0, "amount": 0, "tax": 0}  # Track sums for each brand
+    total_sum = {"qty": 0, "amount": 0, "tax": 0}  # Track total sums
 
     for record in sales_result:
         # Convert to Decimal and handle None values
@@ -122,7 +125,6 @@ def get_data(filters):
             brand_data.append({
                 "item_code": "<b>Total</b>",
                 "qty": f"{brand_sum['qty']:.4f}",
-                "rate": "",
                 "amount": f"{brand_sum['amount']:.4f}",
                 "tax": f"{brand_sum['tax']:.4f}"
             })
@@ -135,7 +137,6 @@ def get_data(filters):
 
         # Update the sums with the current record
         brand_sum["qty"] += qty
-        brand_sum["rate"] = ""
         brand_sum["amount"] += amount
         brand_sum["tax"] += tax
 
@@ -145,11 +146,10 @@ def get_data(filters):
     # After looping through all records, insert a summary for the last brand
     if current_brand is not None:
         brand_data.append({
-             "item_code": "<b>Total</b>",
-                "qty": f"{brand_sum['qty']:.4f}",
-                "rate": "",
-                "amount": f"{brand_sum['amount']:.4f}",
-                "tax": f"{brand_sum['tax']:.4f}"
+            "item_code": "<b>Total</b>",
+            "qty": f"{brand_sum['qty']:.4f}",
+            "amount": f"{brand_sum['amount']:.4f}",
+            "tax": f"{brand_sum['tax']:.4f}"
         })
         # Update total sum
         for key, value in brand_sum.items():
@@ -162,11 +162,9 @@ def get_data(filters):
     data.append({
         "item_code": "<b>Grand Total</b>",
         "qty": f"{total_sum['qty']:.4f}",
-        "rate": "",
         "amount": f"{total_sum['amount']:.4f}",
         "tax": f"{total_sum['tax']:.4f}"
     })
-
 
     # sum_tax = 0
     # sum_amount = 0
