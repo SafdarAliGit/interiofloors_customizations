@@ -12,7 +12,7 @@ def execute(filters=None):
 def get_columns():
     columns = [
         {
-            "label": _("Inv No"),
+            "label": _("Invoice Number"),
             "fieldname": "inv_no",
             "fieldtype": "Link",
             "options": "Sales Invoice",
@@ -25,20 +25,20 @@ def get_columns():
             "width": 120
         },
         {
-            "label": _("Ref No"),
+            "label": _("Reference Number"),
             "fieldname": "ref_no",
             "fieldtype": "Data",
             "width": 120
         },
         {
-            "label": _("Item"),
+            "label": _("Sales Invoice Item"),
             "fieldname": "item_code",
             "fieldtype": "Link",
             "options": "Item",
             "width": 140
         },
         {
-            "label": _("Qty"),
+            "label": _("Quantity"),
             "fieldname": "qty",
             "fieldtype": "Float",
             "width": 120
@@ -56,7 +56,7 @@ def get_columns():
             "width": 120
         },
         {
-            "label": _("Other Charges"),
+            "label": _("Sales Taxes and Charges"),
             "fieldname": "tax",
             "fieldtype": "Currency",
             "width": 120
@@ -109,7 +109,7 @@ def get_data(filters):
         sum_amount += item.amount if item.amount else 0
 
     sales_result.append({
-        "inv_no": "Total",
+        "inv_no": "<b>Total</b>",
         "posting_date": "",
         "ref_no": "",
         "item_code": "",
