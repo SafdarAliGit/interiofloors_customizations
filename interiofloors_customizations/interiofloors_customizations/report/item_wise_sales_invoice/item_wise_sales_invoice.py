@@ -161,7 +161,6 @@ def get_data(filters):
         "qty": f"{total_sum['qty']:.4f}",
         "amount": f"{total_sum['amount']:.4f}",
         "tax": f"{total_sum['tax']:.4f}"
-
     })
 
 
@@ -198,6 +197,6 @@ def get_data(filters):
     # for item in sales_result:
     #     item.grand_total = (item.amount if item.amount else 0) + (item.tax if item.tax else 0)
 
-    data.extend(sales_result)
+    # data.extend(sales_result)
 
     return data
