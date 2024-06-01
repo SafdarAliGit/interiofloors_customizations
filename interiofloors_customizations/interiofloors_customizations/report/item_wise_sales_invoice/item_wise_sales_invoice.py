@@ -1,7 +1,7 @@
 # my_custom_app.my_custom_app.report.daily_activity_report.daily_activity_report.py
 import frappe
 from frappe import _
-
+from decimal import Decimal
 
 def execute(filters=None):
     columns = get_columns()
@@ -56,7 +56,7 @@ def get_columns():
             "width": 120
         },
         {
-            "label": _("Sales Taxes and Charges"),
+            "label": _("Other Charges"),
             "fieldname": "tax",
             "fieldtype": "Currency",
             "width": 120
@@ -102,22 +102,85 @@ def get_data(filters):
     """.format(conditions=get_conditions(filters, "si"))
 
     sales_result = frappe.db.sql(sales, filters, as_dict=1)
-    sum_tax = 0
-    sum_amount = 0
-    for item in sales_result:
-        sum_tax += item.tax if item.tax else 0
-        sum_amount += item.amount if item.amount else 0
 
-    sales_result.append({
-        "inv_no": "<b>Total</b>",
-        "posting_date": "",
-        "ref_no": "",
-        "item_code": "",
-        "qty": "",
-        "rate": "",
-        "amount": sum_amount,
-        "tax": sum_tax
+    current_brand = None
+    brand_data = []  # Collects data for each brand
+    brand_sum = {"qty": 0, "amount": 0, "tax": 0}  # Track sums for each brand
+    total_sum = {"qty": 0, "amount": 0, "tax": 0}  # Track total sums
+
+    for record in sales_result:
+        # Convert to Decimal and handle None values
+        qty = Decimal(record.get('qty', 0) or 0)
+        amount = Decimal(record.get('amount', 0) or 0)
+        tax = Decimal(record.get('tax', 0) or 0)
+        # Check if we're still processing the same brand
+        if current_brand is None:
+            # First record, set the current brand
+            current_brand = record['inv_no']
+        elif record['inv_no'] != current_brand:
+            # We've hit a new brand, time to insert the summary for the previous brand
+            brand_data.append({
+                "item_code": "Total",
+                "qty": f"{brand_sum['qty']:.4f}",
+                "amount": f"{brand_sum['amount']:.4f}",
+                "tax": f"{brand_sum['tax']:.4f}"
+            })
+            # Update total sum
+            for key, value in brand_sum.items():
+                total_sum[key] += value
+            # Reset the sums for the new brand
+            current_brand = record['inv_no']
+            brand_sum = {"qty": 0, "amount": 0, "tax": 0}
+
+        # Update the sums with the current record
+        brand_sum["qty"] += qty
+        brand_sum["amount"] += amount
+        brand_sum["tax"] += tax
+
+        # Append the current record to brand_data
+        brand_data.append(record)
+
+    # After looping through all records, insert a summary for the last brand
+    if current_brand is not None:
+        brand_data.append({
+             "item_code": "Total",
+                "qty": f"{brand_sum['qty']:.4f}",
+                "amount": f"{brand_sum['amount']:.4f}",
+                "tax": f"{brand_sum['tax']:.4f}"
+        })
+        # Update total sum
+        for key, value in brand_sum.items():
+            total_sum[key] += value
+
+    # Append brand_data to data
+    data.extend(brand_data)
+
+    # Append total sum to data
+    data.append({
+        "item_code": "<b>Grand Total</b>",
+        "qty": f"{total_sum['qty']:.4f}",
+        "amount": f"{total_sum['amount']:.4f}",
+        "tax": f"{total_sum['tax']:.4f}"
+
     })
+
+
+    # sum_tax = 0
+    # sum_amount = 0
+    # for item in sales_result:
+    #     sum_tax += item.tax if item.tax else 0
+    #     sum_amount += item.amount if item.amount else 0
+    #
+    # sales_result.append({
+    #     "inv_no": "<b>Total</b>",
+    #     "posting_date": "",
+    #     "ref_no": "",
+    #     "item_code": "",
+    #     "qty": "",
+    #     "rate": "",
+    #     "amount": sum_amount,
+    #     "tax": sum_tax
+    # })
     # TO REMOVE DUPLICATES
     # keys_to_check = ['inv_no', 'posting_date', 'tax']
     # seen_values = []
