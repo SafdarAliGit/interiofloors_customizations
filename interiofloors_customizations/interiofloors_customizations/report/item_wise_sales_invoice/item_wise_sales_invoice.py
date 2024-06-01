@@ -105,8 +105,8 @@ def get_data(filters):
 
     current_brand = None
     brand_data = []  # Collects data for each brand
-    brand_sum = {"qty": 0, "amount": 0, "tax": 0}  # Track sums for each brand
-    total_sum = {"qty": 0, "amount": 0, "tax": 0}  # Track total sums
+    brand_sum = {"qty": 0,"rate": '', "amount": 0, "tax": 0}  # Track sums for each brand
+    total_sum = {"qty": 0,"rate": '', "amount": 0, "tax": 0}  # Track total sums
 
     for record in sales_result:
         # Convert to Decimal and handle None values
@@ -122,6 +122,7 @@ def get_data(filters):
             brand_data.append({
                 "item_code": "<b>Total</b>",
                 "qty": f"{brand_sum['qty']:.4f}",
+                "rate": "",
                 "amount": f"{brand_sum['amount']:.4f}",
                 "tax": f"{brand_sum['tax']:.4f}"
             })
@@ -134,6 +135,7 @@ def get_data(filters):
 
         # Update the sums with the current record
         brand_sum["qty"] += qty
+        brand_sum["rate"] = ""
         brand_sum["amount"] += amount
         brand_sum["tax"] += tax
 
@@ -145,6 +147,7 @@ def get_data(filters):
         brand_data.append({
              "item_code": "<b>Total</b>",
                 "qty": f"{brand_sum['qty']:.4f}",
+                "rate": "",
                 "amount": f"{brand_sum['amount']:.4f}",
                 "tax": f"{brand_sum['tax']:.4f}"
         })
@@ -159,6 +162,7 @@ def get_data(filters):
     data.append({
         "item_code": "<b>Grand Total</b>",
         "qty": f"{total_sum['qty']:.4f}",
+        "rate": "",
         "amount": f"{total_sum['amount']:.4f}",
         "tax": f"{total_sum['tax']:.4f}"
     })
