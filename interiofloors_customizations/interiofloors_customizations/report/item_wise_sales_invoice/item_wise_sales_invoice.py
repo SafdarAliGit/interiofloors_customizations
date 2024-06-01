@@ -60,12 +60,6 @@ def get_columns():
             "fieldname": "tax",
             "fieldtype": "Currency",
             "width": 120
-        },
-        {
-            "label": _("Grand Total"),
-            "fieldname": "grand_total",
-            "fieldtype": "Currency",
-            "width": 120
         }
     ]
     return columns
@@ -96,8 +90,7 @@ def get_data(filters):
         sii.qty,
         sii.rate,
         sii.amount, 
-        si.total_taxes_and_charges AS tax,
-        si.grand_total
+        si.total_taxes_and_charges AS tax
         
     FROM
         `tabSales Invoice` si
@@ -109,7 +102,22 @@ def get_data(filters):
     """.format(conditions=get_conditions(filters, "si"))
 
     sales_result = frappe.db.sql(sales, filters, as_dict=1)
+    sum_tax = 0
+    sum_amount = 0
+    for item in sales_result:
+        sum_tax += item.tax if item.tax else 0
+        sum_amount += item.amount if item.amount else 0
 
+    sales_result.append({
+        "inv_no": "Total",
+        "posting_date": "",
+        "ref_no": "",
+        "item_code": "",
+        "qty": "",
+        "rate": "",
+        "amount": sum_amount,
+        "tax": sum_tax
+    })
     # TO REMOVE DUPLICATES
     # keys_to_check = ['inv_no', 'posting_date', 'tax']
     # seen_values = []
