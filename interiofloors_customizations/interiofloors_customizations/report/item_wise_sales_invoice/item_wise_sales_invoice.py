@@ -120,7 +120,7 @@ def get_data(filters):
         elif record['inv_no'] != current_brand:
             # We've hit a new brand, time to insert the summary for the previous brand
             brand_data.append({
-                "item_code": "Total",
+                "item_code": "<b>Total</b>",
                 "qty": f"{brand_sum['qty']:.4f}",
                 "amount": f"{brand_sum['amount']:.4f}",
                 "tax": f"{brand_sum['tax']:.4f}"
@@ -143,7 +143,7 @@ def get_data(filters):
     # After looping through all records, insert a summary for the last brand
     if current_brand is not None:
         brand_data.append({
-             "item_code": "Total",
+             "item_code": "<b>Total</b>",
                 "qty": f"{brand_sum['qty']:.4f}",
                 "amount": f"{brand_sum['amount']:.4f}",
                 "tax": f"{brand_sum['tax']:.4f}"
