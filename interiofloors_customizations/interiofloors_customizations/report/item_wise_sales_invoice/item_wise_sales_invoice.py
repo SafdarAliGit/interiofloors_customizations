@@ -53,17 +53,18 @@ def get_columns():
         }
         ,
         {
-            "label": _("Other Charges"),
-            "fieldname": "tax",
-            "fieldtype": "Currency",
-            "width": 120
-        },
-        {
             "label": _("Amount"),
             "fieldname": "amount",
             "fieldtype": "Currency",
             "width": 120
         },
+        {
+            "label": _("Other Charges"),
+            "fieldname": "tax",
+            "fieldtype": "Currency",
+            "width": 120
+        },
+
         {
             "label": _("Grand Total"),
             "fieldname": "grand_total",
