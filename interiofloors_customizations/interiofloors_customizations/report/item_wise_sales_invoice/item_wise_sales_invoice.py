@@ -175,7 +175,7 @@ def get_data(filters):
         "item_code": "**GRAND TOTAL**",
         "amount":format_currency(total_sum['amount']),
         "tax": format_currency(total_sum['tax']),
-        "grand_total": format_currency(brand_sum['amount'] + brand_sum['tax']),
+        "grand_total": format_currency(total_sum['amount'] + total_sum['tax']),
     })
 
     # sum_tax = 0
