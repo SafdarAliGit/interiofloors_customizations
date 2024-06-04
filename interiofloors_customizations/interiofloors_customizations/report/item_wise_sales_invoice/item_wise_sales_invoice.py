@@ -63,9 +63,20 @@ def get_columns():
             "fieldname": "amount",
             "fieldtype": "Currency",
             "width": 120
+        },
+        {
+            "label": _("Grand Total"),
+            "fieldname": "grand_total",
+            "fieldtype": "Currency",
+            "width": 120
         }
     ]
     return columns
+
+
+def format_currency(value):
+    # Format the value as a string with 4 decimal places or as an empty string if it's zero
+    return f"{value:.4f}" if value != 0 else ""
 
 
 def get_conditions(filters, doctype):
@@ -93,7 +104,8 @@ def get_data(filters):
         sii.qty,
         sii.rate,
         sii.amount, 
-        si.total_taxes_and_charges AS tax
+        si.total_taxes_and_charges AS tax,
+        0 AS grand_total
         
     FROM
         `tabSales Invoice` si
@@ -108,14 +120,14 @@ def get_data(filters):
 
     current_brand = None
     brand_data = []  # Collects data for each brand
-    brand_sum = {"qty": 0, "amount": 0, "tax": 0}  # Track sums for each brand
-    total_sum = {"qty": 0, "amount": 0, "tax": 0}  # Track total sums
+    brand_sum = {"amount": 0, "tax": 0, "grand_total": 0}  # Track sums for each brand
+    total_sum = {"amount": 0, "tax": 0, "grand_total": 0}  # Track total sums
 
     for record in sales_result:
         # Convert to Decimal and handle None values
-        qty = Decimal(record.get('qty', 0) or 0)
         amount = Decimal(record.get('amount', 0) or 0)
         tax = Decimal(record.get('tax', 0) or 0)
+        grand_total = Decimal(record.get('grand_total', 0) or 0)
         # Check if we're still processing the same brand
         if current_brand is None:
             # First record, set the current brand
@@ -123,22 +135,22 @@ def get_data(filters):
         elif record['inv_no'] != current_brand:
             # We've hit a new brand, time to insert the summary for the previous brand
             brand_data.append({
-                "item_code": "<b>Total</b>",
-                "qty": f"{brand_sum['qty']:.4f}",
-                "amount": f"{brand_sum['amount']:.4f}",
-                "tax": f"{brand_sum['tax']:.4f}"
+                "item_code": "**TOTAL**",
+                "amount": format_currency(brand_sum['amount']),
+                "tax": format_currency(brand_sum['tax']),
+                "grand_total": format_currency(brand_sum['amount'] + brand_sum['tax']),
             })
             # Update total sum
             for key, value in brand_sum.items():
                 total_sum[key] += value
             # Reset the sums for the new brand
             current_brand = record['inv_no']
-            brand_sum = {"qty": 0, "amount": 0, "tax": 0}
+            brand_sum = {"amount": 0, "tax": 0, "grand_total": 0}
 
         # Update the sums with the current record
-        brand_sum["qty"] += qty
         brand_sum["amount"] += amount
         brand_sum["tax"] += tax
+        brand_sum["grand_total"] += grand_total
 
         # Append the current record to brand_data
         brand_data.append(record)
@@ -146,10 +158,10 @@ def get_data(filters):
     # After looping through all records, insert a summary for the last brand
     if current_brand is not None:
         brand_data.append({
-            "item_code": "<b>Total</b>",
-            "qty": f"{brand_sum['qty']:.4f}",
-            "amount": f"{brand_sum['amount']:.4f}",
-            "tax": f"{brand_sum['tax']:.4f}"
+            "item_code": "**TOTAL**",
+            "amount": format_currency(brand_sum['amount']),
+            "tax": format_currency(brand_sum['tax']),
+            "grand_total": format_currency(brand_sum['amount'] + brand_sum['tax']),
         })
         # Update total sum
         for key, value in brand_sum.items():
@@ -160,10 +172,10 @@ def get_data(filters):
 
     # Append total sum to data
     data.append({
-        "item_code": "<b>Grand Total</b>",
-        "qty": f"{total_sum['qty']:.4f}",
-        "amount": f"{total_sum['amount']:.4f}",
-        "tax": f"{total_sum['tax']:.4f}"
+        "item_code": "**GRAND TOTAL**",
+        "amount":format_currency(total_sum['amount']),
+        "tax": format_currency(total_sum['tax']),
+        "grand_total": format_currency(brand_sum['amount'] + brand_sum['tax']),
     })
 
     # sum_tax = 0
@@ -173,7 +185,7 @@ def get_data(filters):
     #     sum_amount += item.amount if item.amount else 0
     #
     # sales_result.append({
-    #     "inv_no": "<b>Total</b>",
+    #     "inv_no": "Total",
     #     "posting_date": "",
     #     "ref_no": "",
     #     "item_code": "",
