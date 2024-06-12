@@ -196,17 +196,17 @@ def get_data(filters):
     #     "tax": sum_tax
     # })
     # TO REMOVE DUPLICATES
-    # keys_to_check = ['inv_no', 'posting_date', 'tax']
-    # seen_values = []
-    #
-    # for entry in sales_result:
-    #     key_values = tuple(entry[key] for key in keys_to_check)
-    #
-    #     if key_values in seen_values:
-    #         for key in keys_to_check:
-    #             entry[key] = None
-    #     else:
-    #         seen_values.append(key_values)
+    keys_to_check = ['inv_no', 'posting_date', 'tax']
+    seen_values = []
+
+    for entry in sales_result:
+        key_values = tuple(entry[key] for key in keys_to_check)
+
+        if key_values in seen_values:
+            for key in keys_to_check:
+                entry[key] = None
+        else:
+            seen_values.append(key_values)
 
     # END
     # for item in sales_result:
