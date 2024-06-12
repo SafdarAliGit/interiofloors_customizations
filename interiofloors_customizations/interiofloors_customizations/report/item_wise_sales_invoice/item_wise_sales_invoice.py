@@ -119,7 +119,7 @@ def get_data(filters):
 
     sales_result = frappe.db.sql(sales, filters, as_dict=1)
     # TO REMOVE DUPLICATES
-    keys_to_check = ['tax']
+    keys_to_check = ['inv_no', 'posting_date', 'tax']
     seen_values = []
 
     for entry in sales_result:
