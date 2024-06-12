@@ -118,7 +118,20 @@ def get_data(filters):
     """.format(conditions=get_conditions(filters, "si"))
 
     sales_result = frappe.db.sql(sales, filters, as_dict=1)
+    # TO REMOVE DUPLICATES
+    keys_to_check = ['tax']
+    seen_values = []
 
+    for entry in sales_result:
+        key_values = tuple(entry[key] for key in keys_to_check)
+
+        if key_values in seen_values:
+            for key in keys_to_check:
+                entry[key] = None
+        else:
+            seen_values.append(key_values)
+
+    # END
     current_brand = None
     brand_data = []  # Collects data for each brand
     brand_sum = {"amount": 0, "tax": 0, "grand_total": 0}  # Track sums for each brand
@@ -195,20 +208,7 @@ def get_data(filters):
     #     "amount": sum_amount,
     #     "tax": sum_tax
     # })
-    # TO REMOVE DUPLICATES
-    keys_to_check = ['inv_no', 'posting_date', 'tax']
-    seen_values = []
 
-    for entry in sales_result:
-        key_values = tuple(entry[key] for key in keys_to_check)
-
-        if key_values in seen_values:
-            for key in keys_to_check:
-                entry[key] = None
-        else:
-            seen_values.append(key_values)
-
-    # END
     # for item in sales_result:
     #     item.grand_total = (item.amount if item.amount else 0) + (item.tax if item.tax else 0)
 
