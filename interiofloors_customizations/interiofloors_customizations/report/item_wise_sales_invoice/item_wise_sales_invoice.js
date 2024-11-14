@@ -9,7 +9,6 @@ frappe.query_reports["Item Wise Sales Invoice"] = {
 			"fieldname": "to_date",
 			"label": __("To Date"),
 			"fieldtype": "Date",
-			"reqd": true,
 		},
 		{
 		 "fieldname": "item_group",

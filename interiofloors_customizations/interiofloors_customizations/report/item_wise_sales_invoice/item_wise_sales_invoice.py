@@ -93,6 +93,7 @@ def get_conditions(filters, doctype):
         conditions.append(f"`{child_sii}`.item_group = %(item_group)s")
     if filters.get("item_code"):
         conditions.append(f"`{child_sii}`.item_code = %(item_code)s")
+    conditions.append(f"`{doctype}`.docstatus = 1")
 
     return " AND ".join(conditions)
 
@@ -117,8 +118,7 @@ def get_data(filters):
     INNER JOIN
         `tabSales Invoice Item` sii ON si.name = sii.parent
     WHERE
-        {conditions} AND 
-        si.docstatus = 1  
+        {conditions}
     """.format(conditions=get_conditions(filters, "si"))
 
     sales_result = frappe.db.sql(sales, filters, as_dict=1)
