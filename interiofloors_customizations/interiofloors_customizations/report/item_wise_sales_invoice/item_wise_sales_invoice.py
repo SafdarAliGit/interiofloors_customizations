@@ -89,6 +89,10 @@ def get_conditions(filters, doctype):
         conditions.append(f"`{doctype}`.posting_date <= %(to_date)s")
     if filters.get("customer"):
         conditions.append(f"`{doctype}`.customer = %(customer)s")
+    if filters.get("item_group"):
+        conditions.append(f"`sii`.item_group = %(item_group)s")
+    if filters.get("item_code"):
+        conditions.append(f"`sii`.item_code = %(item_code)s")
 
     return " AND ".join(conditions)
 
