@@ -82,7 +82,7 @@ def format_currency(value):
 
 def get_conditions(filters, doctype):
     conditions = []
-
+    child_sii = 'sii'
     if filters.get("from_date"):
         conditions.append(f"`{doctype}`.posting_date >= %(from_date)s")
     if filters.get("to_date"):
@@ -90,9 +90,9 @@ def get_conditions(filters, doctype):
     if filters.get("customer"):
         conditions.append(f"`{doctype}`.customer = %(customer)s")
     if filters.get("item_group"):
-        conditions.append(f"`sii`.item_group = %(item_group)s")
+        conditions.append(f"`{child_sii}`.item_group = %(item_group)s")
     if filters.get("item_code"):
-        conditions.append(f"`sii`.item_code = %(item_code)s")
+        conditions.append(f"`{child_sii}`.item_code = %(item_code)s")
 
     return " AND ".join(conditions)
 
